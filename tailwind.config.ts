@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'sans': ['Inter', 'sans-serif'],
+				'jersey': ['"Jersey M54"', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -147,6 +151,11 @@ export default {
 					'0%': { transform: 'translateY(0)', opacity: '1' },
 					'50%': { transform: 'translateY(-30px)', opacity: '1' },
 					'100%': { transform: 'translateY(0)', opacity: '0.2' }
+				},
+				'bat-swing': {
+					'0%': { transform: 'rotate(-45deg)' },
+					'50%': { transform: 'rotate(15deg)' },
+					'100%': { transform: 'rotate(-45deg)' }
 				}
 			},
 			animation: {
@@ -161,6 +170,7 @@ export default {
 				'flip-card': 'flip-card 0.6s ease-in-out',
 				'base-run': 'base-run 1.5s ease-in-out',
 				'ball-throw': 'ball-throw 0.5s ease-in-out',
+				'bat-swing': 'bat-swing 0.7s ease-in-out',
 			},
 			backgroundImage: {
 				'wood-texture': "url('/wood-texture.jpg')",

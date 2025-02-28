@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { CheckCircle, Clock, Target, Shield, Trash2 } from 'lucide-react';
+import { Clock, Trash2 } from 'lucide-react';
 import { Task } from '../types';
 import { useTasks } from '../context/TaskContext';
 import { formatDate } from '../utils/helpers';
+import { BaseballBat, BaseballGlove, BaseballCheckmark } from './BaseballIcons';
 
 interface TaskCardProps {
   task: Task;
@@ -50,9 +51,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                     ? 'bg-baseball-navy/10 text-baseball-navy dark:bg-baseball-navy/30 dark:text-baseball-cream' 
                     : 'bg-baseball-green/10 text-baseball-green dark:bg-baseball-green/30 dark:text-baseball-lightGreen'
                 }`}>
-                  {task.category === 'offense' ? <Target size={18} /> : <Shield size={18} />}
+                  {task.category === 'offense' ? <BaseballBat size={18} /> : <BaseballGlove size={18} />}
                 </div>
-                <h3 className={`font-medium text-lg ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>
+                <h3 className={`font-jersey text-lg ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>
                   {task.title}
                 </h3>
               </div>
@@ -111,7 +112,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             <div className="h-full flex flex-col justify-between">
               {/* Task "Stats" */}
               <div className="mb-6">
-                <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+                <h4 className="text-sm font-jersey uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
                   Task Details
                 </h4>
                 
@@ -156,7 +157,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                     }`}
                   >
                     <span className="flex items-center justify-center">
-                      <CheckCircle size={16} className="mr-2" />
+                      <BaseballCheckmark size={16} className="mr-2" />
                       Complete Task
                     </span>
                   </button>

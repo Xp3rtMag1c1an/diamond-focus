@@ -70,7 +70,7 @@ const Index = () => {
               <BarChart3 className="text-baseball-green dark:text-baseball-lightGreen" size={24} />
             </div>
             <div>
-              <h2 className="text-lg font-medium mb-1">Today's Scouting Report</h2>
+              <h2 className="text-lg font-jersey mb-1">Today's Scouting Report</h2>
               <p className="text-gray-600 dark:text-gray-300">{energyForecast.message}</p>
             </div>
           </div>
@@ -88,7 +88,7 @@ const Index = () => {
             {/* Active Tasks */}
             <div className="glass-panel rounded-3xl overflow-hidden animate-fade-in">
               <div className="p-6">
-                <h2 className="text-lg font-medium mb-6">Active Tasks</h2>
+                <h2 className="text-lg font-jersey mb-6">Active Tasks</h2>
                 
                 {activeTasks.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
@@ -111,7 +111,7 @@ const Index = () => {
               <div className="glass-panel rounded-3xl overflow-hidden animate-fade-in">
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-medium">Completed Tasks</h2>
+                    <h2 className="text-lg font-jersey">Completed Tasks</h2>
                     <div className="scoreboard-digit">{completedTasks.length}</div>
                   </div>
                   

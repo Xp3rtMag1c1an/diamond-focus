@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { getCurrentInning, getInnings } from '../utils/helpers';
-import { Shield, Target } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { TaskCategory } from '../types';
+import { BaseballBat, BaseballGlove } from './BaseballIcons';
 
 const TaskForm = () => {
   const { addTask, isOffenseEnabled } = useTasks();
@@ -28,7 +29,7 @@ const TaskForm = () => {
   return (
     <div className="glass-panel rounded-2xl animate-fade-in">
       <div className="p-6">
-        <h2 className="text-lg font-medium mb-6">Add New Task</h2>
+        <h2 className="text-lg font-jersey mb-6">Add New Task</h2>
         
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -74,8 +75,8 @@ const TaskForm = () => {
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <Shield size={18} />
-                <span>Defense</span>
+                <BaseballGlove size={18} />
+                <span className="font-jersey">Defense</span>
               </button>
               
               <button
@@ -91,8 +92,8 @@ const TaskForm = () => {
                 disabled={!isOffenseEnabled}
                 title={!isOffenseEnabled ? 'Complete 3 defense tasks to unlock' : undefined}
               >
-                <Target size={18} />
-                <span>Offense</span>
+                <BaseballBat size={18} />
+                <span className="font-jersey">Offense</span>
               </button>
             </div>
             {!isOffenseEnabled && (
@@ -106,23 +107,26 @@ const TaskForm = () => {
             <label htmlFor="inning" className="block text-sm font-medium text-gray-700 mb-1">
               Assign to Inning
             </label>
-            <select
-              id="inning"
-              value={inning}
-              onChange={(e) => setInning(Number(e.target.value))}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-baseball-green focus:border-transparent"
-            >
-              {getInnings().map(inning => (
-                <option key={inning.number} value={inning.number}>
-                  Inning {inning.number}: {inning.label} ({inning.time})
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="inning"
+                value={inning}
+                onChange={(e) => setInning(Number(e.target.value))}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-baseball-green focus:border-transparent appearance-none"
+              >
+                {getInnings().map(inning => (
+                  <option key={inning.number} value={inning.number}>
+                    Inning {inning.number}: {inning.label} ({inning.time})
+                  </option>
+                ))}
+              </select>
+              <Clock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+            </div>
           </div>
           
           <button
             type="submit"
-            className={`w-full py-3 rounded-lg font-medium transition-all ${
+            className={`w-full py-3 rounded-lg transition-all font-jersey ${
               category === 'offense'
                 ? 'bg-baseball-navy text-white hover:bg-opacity-90'
                 : 'bg-baseball-green text-white hover:bg-baseball-darkGreen'

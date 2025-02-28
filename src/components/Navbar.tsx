@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
 import { useTasks } from '../context/TaskContext';
-import { ArrowRightCircle, BarChart3, Coffee, Menu, X } from 'lucide-react';
+import { Coffee, Menu, X } from 'lucide-react';
 import { getCurrentInning, getInnings } from '../utils/helpers';
+import { Scoreboard, Stadium } from './BaseballIcons';
 
 const Navbar = () => {
   const { energyForecast, requestBreak } = useTasks();
@@ -17,7 +18,7 @@ const Navbar = () => {
       <div className="glass-panel px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 diamond-progress bg-baseball-green animate-pulse-soft"></div>
-          <h1 className="text-xl font-medium tracking-tight">Diamond Focus</h1>
+          <h1 className="text-xl font-jersey tracking-tight">Diamond Focus</h1>
         </div>
         
         <div className="hidden md:flex items-center gap-6">
@@ -28,7 +29,7 @@ const Navbar = () => {
           
           <div className="text-sm font-medium">
             <span className="mr-2">Inning {currentInning}:</span>
-            <span className="text-baseball-navy">{currentInningInfo?.label}</span>
+            <span className="text-baseball-navy font-jersey">{currentInningInfo?.label}</span>
           </div>
           
           <button
@@ -43,7 +44,7 @@ const Navbar = () => {
             onClick={() => {}}
             className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-baseball-green rounded-md transition-all hover:bg-baseball-darkGreen"
           >
-            <BarChart3 size={16} />
+            <Scoreboard size={16} />
             <span>Scouting Report</span>
           </button>
         </div>
@@ -66,7 +67,7 @@ const Navbar = () => {
             
             <div className="text-sm font-medium">
               <span className="mr-1">Inning {currentInning}:</span>
-              <span className="text-baseball-navy">{currentInningInfo?.label}</span>
+              <span className="text-baseball-navy font-jersey">{currentInningInfo?.label}</span>
             </div>
           </div>
           
@@ -83,7 +84,7 @@ const Navbar = () => {
               onClick={() => {}}
               className="flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-medium text-white bg-baseball-green rounded-md transition-all hover:bg-baseball-darkGreen"
             >
-              <BarChart3 size={16} />
+              <Stadium size={16} />
               <span>Scouting Report</span>
             </button>
           </div>

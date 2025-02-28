@@ -1,6 +1,7 @@
 
 import { useTasks } from '../context/TaskContext';
 import { getCurrentInning, getInnings, getInningStatus } from '../utils/helpers';
+import { BaseballBase, BaseballBall } from './BaseballIcons';
 
 const DiamondProgress = () => {
   const { tasks } = useTasks();
@@ -38,7 +39,7 @@ const DiamondProgress = () => {
   return (
     <div className="glass-panel rounded-3xl overflow-hidden animate-fade-in">
       <div className="p-6">
-        <h2 className="text-lg font-medium mb-6">Game Progress</h2>
+        <h2 className="text-lg font-jersey mb-6">Game Progress</h2>
         
         {/* Baseball Diamond Visualization */}
         <div className="relative w-full aspect-square max-w-[280px] mx-auto mb-8">
@@ -60,35 +61,35 @@ const DiamondProgress = () => {
             
             {/* Home Plate */}
             <div className="absolute bottom-[15%] left-1/2 -translate-x-1/2 w-6 h-6">
-              <div className={`base ${basePosition === 0 ? 'active animate-pulse-soft' : ''}`}></div>
+              <BaseballBase className={`base ${basePosition === 0 ? 'active animate-pulse-soft' : ''}`} />
             </div>
             
             {/* First Base */}
             <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-6 h-6">
-              <div className={`base ${basePosition >= 1 ? 'active' : ''}`}></div>
+              <BaseballBase className={`base ${basePosition >= 1 ? 'active' : ''}`} />
             </div>
             
             {/* Second Base */}
             <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-6 h-6">
-              <div className={`base ${basePosition >= 2 ? 'active' : ''}`}></div>
+              <BaseballBase className={`base ${basePosition >= 2 ? 'active' : ''}`} />
             </div>
             
             {/* Third Base */}
             <div className="absolute top-1/2 left-[15%] -translate-y-1/2 w-6 h-6">
-              <div className={`base ${basePosition >= 3 ? 'active' : ''}`}></div>
+              <BaseballBase className={`base ${basePosition >= 3 ? 'active' : ''}`} />
             </div>
             
             {/* Runner Animation */}
             {basePosition > 0 && (
-              <div className="absolute w-4 h-4 rounded-full bg-baseball-navy shadow-md z-10 
-                            animate-base-run" 
+              <div className="absolute w-6 h-6 z-10 animate-base-run" 
                   style={{
                     animationDelay: '0.3s',
                     animationDuration: '2s',
                     animationIterationCount: 'infinite',
                     bottom: '15%',
-                    left: 'calc(50% - 8px)'
+                    left: 'calc(50% - 12px)'
                   }}>
+                <BaseballBall className="text-baseball-navy" />
               </div>
             )}
           </div>
@@ -97,7 +98,7 @@ const DiamondProgress = () => {
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-baseball-navy text-white px-4 py-2 rounded-t-xl shadow-md">
             <div className="flex items-center justify-center">
               <div className="scoreboard-label mr-2">PROGRESS</div>
-              <div className="scoreboard-digit">{Math.round(completionPercentage)}%</div>
+              <div className="scoreboard-digit font-jersey">{Math.round(completionPercentage)}%</div>
             </div>
           </div>
         </div>
@@ -105,21 +106,21 @@ const DiamondProgress = () => {
         {/* OPS-Style Productivity Stats */}
         <div className="scoreboard mb-8 overflow-hidden rounded-xl">
           <div className="bg-baseball-navy/90 px-3 py-2 text-xs uppercase tracking-wider text-white/70 flex justify-between">
-            <span>Productivity Stats</span>
+            <span className="font-jersey">Productivity Stats</span>
             <span>Today</span>
           </div>
           
           <div className="bg-black/80 p-4 grid grid-cols-3 gap-2 text-center">
             <div>
-              <div className="scoreboard-label">OPS</div>
+              <div className="scoreboard-label font-jersey">OPS</div>
               <div className="scoreboard-digit text-lg">{ops}</div>
             </div>
             <div>
-              <div className="scoreboard-label">STREAK</div>
+              <div className="scoreboard-label font-jersey">STREAK</div>
               <div className="scoreboard-digit text-lg">{streak}</div>
             </div>
             <div>
-              <div className="scoreboard-label">DONE</div>
+              <div className="scoreboard-label font-jersey">DONE</div>
               <div className="scoreboard-digit text-lg">{completedTasks}</div>
             </div>
           </div>
@@ -128,26 +129,26 @@ const DiamondProgress = () => {
         {/* Offense/Defense Stats */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="neumorph-inset p-4 text-center">
-            <h3 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Defense</h3>
+            <h3 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1 font-jersey">Defense</h3>
             <p className="text-xl font-semibold">
               <span className="scoreboard-digit mr-1">{completedDefense}</span> / {defenseTasks.length}
             </p>
           </div>
           <div className="neumorph-inset p-4 text-center">
-            <h3 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Offense</h3>
+            <h3 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1 font-jersey">Offense</h3>
             <p className="text-xl font-semibold">
               <span className="scoreboard-digit mr-1">{completedOffense}</span> / {offenseTasks.length}
             </p>
           </div>
         </div>
         
-        <h3 className="text-sm font-medium mb-4">Today's Innings</h3>
+        <h3 className="text-sm font-jersey mb-4">Today's Innings</h3>
         
         <div className="scoreboard overflow-hidden rounded-xl mb-4">
           <div className="bg-black/80 py-2 px-4 grid grid-cols-9 gap-1">
             {innings.map(inning => (
               <div key={inning.number} className="text-center">
-                <div className="text-xs text-gray-400">{inning.number}</div>
+                <div className="text-xs text-gray-400 font-jersey">{inning.number}</div>
                 <div className={`w-full h-1 mt-1 rounded-full ${
                   getInningStatus(inning.number) === 'active' ? 'bg-baseball-green' :
                   getInningStatus(inning.number) === 'completed' ? 'bg-baseball-darkGreen' : 'bg-gray-700'
@@ -159,8 +160,8 @@ const DiamondProgress = () => {
       </div>
       
       <div className="bg-baseball-green px-6 py-4 text-white text-sm font-medium flex justify-between items-center">
-        <span>Currently: Inning {currentInning}</span>
-        <div className="bg-black/30 px-3 py-1 rounded-lg text-xs uppercase tracking-wider">
+        <span className="font-jersey">Currently: Inning {currentInning}</span>
+        <div className="bg-black/30 px-3 py-1 rounded-lg text-xs uppercase tracking-wider font-jersey">
           {currentInning <= 3 ? 'Morning' : currentInning <= 6 ? 'Afternoon' : 'Evening'}
         </div>
       </div>
