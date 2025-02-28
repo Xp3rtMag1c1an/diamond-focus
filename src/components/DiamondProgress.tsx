@@ -36,6 +36,25 @@ const DiamondProgress = () => {
   
   const ops = (onBasePercentage + slugging).toFixed(3);
   
+  // Calculate batting average (completed tasks / total tasks)
+  const battingAverage = totalTasks > 0 ? (completedTasks / totalTasks).toFixed(3) : '.000';
+  
+  // Determine hot streak status
+  // For demo purposes, a streak of 5+ tasks is considered "hot"
+  const isHotStreak = streak >= 5;
+  
+  // Mock leaderboard data
+  const leaderboardData = [
+    { name: "You", ops: parseFloat(ops), position: 3 },
+    { name: "Alex", ops: 1.245, position: 1 },
+    { name: "Jordan", ops: 1.102, position: 2 },
+    { name: "Taylor", ops: 0.875, position: 4 },
+    { name: "Casey", ops: 0.764, position: 5 }
+  ];
+  
+  // Sort leaderboard data by OPS
+  leaderboardData.sort((a, b) => b.ops - a.ops);
+  
   return (
     <div className="glass-panel rounded-3xl overflow-hidden animate-fade-in">
       <div className="p-6">
@@ -117,12 +136,77 @@ const DiamondProgress = () => {
             </div>
             <div>
               <div className="scoreboard-label font-jersey">STREAK</div>
-              <div className="scoreboard-digit text-lg">{streak}</div>
+              <div className="scoreboard-digit text-lg flex items-center justify-center">
+                {streak} {isHotStreak && <span className="ml-1 text-baseball-red animate-pulse-soft">🔥</span>}
+              </div>
             </div>
             <div>
               <div className="scoreboard-label font-jersey">DONE</div>
               <div className="scoreboard-digit text-lg">{completedTasks}</div>
             </div>
+          </div>
+        </div>
+        
+        {/* New Batting Average Display */}
+        <div className="mb-8 overflow-hidden rounded-xl">
+          <div className="bg-baseball-navy/90 px-3 py-2 text-xs uppercase tracking-wider text-white/70">
+            <span className="font-jersey">Player Stats</span>
+          </div>
+          
+          <div className="bg-black/80 p-4 flex justify-between items-center">
+            <div className="flex flex-col items-center">
+              <div className="scoreboard-label font-jersey">AVG</div>
+              <div className="scoreboard-digit text-xl">{battingAverage}</div>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <div className="scoreboard-label font-jersey">HRs</div>
+              <div className="scoreboard-digit text-xl">{completedOffense}</div>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <div className="scoreboard-label font-jersey">RBIs</div>
+              <div className="scoreboard-digit text-xl">{completedTasks}</div>
+            </div>
+            
+            <div className="flex items-center">
+              <div className="scoreboard-label font-jersey mr-1">STATUS</div>
+              <div className="bg-gray-800 rounded-lg px-3 py-1 text-sm font-jersey text-white flex items-center">
+                {isHotStreak ? (
+                  <>HOT <span className="ml-1 text-baseball-red">🔥</span></>
+                ) : (
+                  'ACTIVE'
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Leaderboard */}
+        <div className="mb-8 overflow-hidden rounded-xl">
+          <div className="bg-baseball-navy/90 px-3 py-2 text-xs uppercase tracking-wider text-white/70">
+            <span className="font-jersey">League Standings</span>
+          </div>
+          
+          <div className="bg-black/80">
+            {leaderboardData.map((player, index) => (
+              <div 
+                key={player.name} 
+                className={`flex justify-between items-center px-4 py-3 border-b border-gray-800 last:border-0 ${
+                  player.name === "You" ? "bg-baseball-green/20" : ""
+                }`}
+              >
+                <div className="flex items-center">
+                  <div className="w-6 text-center font-jersey text-gray-400">{index + 1}</div>
+                  <div className="font-jersey ml-3">{player.name}</div>
+                  {player.name === "You" && <span className="ml-2 text-xs bg-gray-700 px-2 py-0.5 rounded-full">You</span>}
+                </div>
+                <div className="flex items-center">
+                  <div className="scoreboard-digit mr-3">{player.ops.toFixed(3)}</div>
+                  {index === 0 && <span className="text-yellow-400">🏆</span>}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
         

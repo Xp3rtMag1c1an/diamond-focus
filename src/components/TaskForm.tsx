@@ -1,17 +1,58 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { getCurrentInning, getInnings } from '../utils/helpers';
-import { Clock } from 'lucide-react';
+import { Clock, Award } from 'lucide-react';
 import { TaskCategory } from '../types';
 import { BaseballBat, BaseballGlove } from './BaseballIcons';
+import { toast } from 'sonner';
 
 const TaskForm = () => {
-  const { addTask, isOffenseEnabled } = useTasks();
+  const { addTask, isOffenseEnabled, tasks } = useTasks();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<TaskCategory>('defense');
   const [inning, setInning] = useState<number>(getCurrentInning());
+  
+  // Check for milestones/rewards
+  useEffect(() => {
+    const completedTaskCount = tasks.filter(task => task.completed).length;
+    
+    // Milestone rewards
+    if (completedTaskCount === 10) {
+      toast.success(
+        <div className="flex items-center gap-2">
+          <Award className="text-yellow-400" />
+          <span>Rookie Card Unlocked! New card style available.</span>
+        </div>,
+        { duration: 6000 }
+      );
+    } else if (completedTaskCount === 25) {
+      toast.success(
+        <div className="flex items-center gap-2">
+          <Award className="text-yellow-400" />
+          <span>All-Star Status Achieved! You're on the leaderboard now.</span>
+        </div>,
+        { duration: 6000 }
+      );
+    } else if (completedTaskCount === 50) {
+      toast.success(
+        <div className="flex items-center gap-2">
+          <Award className="text-yellow-400" />
+          <span>MVP Trophy Earned! Special theme unlocked.</span>
+        </div>,
+        { duration: 6000 }
+      );
+    } else if (completedTaskCount === 100) {
+      toast.success(
+        <div className="flex items-center gap-2">
+          <Award className="text-yellow-400" />
+          <span>Hall of Fame Induction! Vintage Baseball Cards Theme unlocked.</span>
+        </div>,
+        { duration: 8000 }
+      );
+    }
+  }, [tasks]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

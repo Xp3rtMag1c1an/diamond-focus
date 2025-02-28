@@ -87,3 +87,54 @@ export const playSound = (soundType: 'complete' | 'switch' | 'add'): void => {
   // Implementation would connect to system sounds
   console.log(`Playing ${soundType} sound`);
 };
+
+// Calculate batting average (tasks completed / total tasks attempted)
+export const calculateBattingAverage = (tasks: Task[]): string => {
+  const totalTasks = tasks.length;
+  if (totalTasks === 0) return '.000';
+  
+  const completedTasks = tasks.filter(task => task.completed).length;
+  const average = completedTasks / totalTasks;
+  
+  // Format as a 3-digit decimal like a baseball batting average
+  return average.toFixed(3).substring(1);
+};
+
+// Check if user is on a hot streak (5+ completed tasks in a row)
+export const isOnHotStreak = (tasks: Task[]): boolean => {
+  // Sort tasks by date (newest first)
+  const sortedTasks = [...tasks].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  
+  // Count consecutive completed tasks from most recent
+  let streak = 0;
+  for (const task of sortedTasks) {
+    if (task.completed) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  
+  return streak >= 5;
+};
+
+// Calculate OPS (On-base Plus Slugging) equivalent for productivity
+export const calculateOPS = (tasks: Task[]): string => {
+  if (tasks.length === 0) return '0.000';
+  
+  const completedTasks = tasks.filter(task => task.completed).length;
+  const onBasePercentage = completedTasks / tasks.length;
+  
+  const offenseTasks = tasks.filter(task => task.category === 'offense');
+  const defenseTasks = tasks.filter(task => task.category === 'defense');
+  const completedOffense = offenseTasks.filter(task => task.completed).length;
+  const completedDefense = defenseTasks.filter(task => task.completed).length;
+  
+  // Weight offense tasks higher (1.5x) compared to defense tasks (1.0x)
+  const slugging = ((completedDefense * 1.0) + (completedOffense * 1.5)) / tasks.length;
+  
+  const ops = onBasePercentage + slugging;
+  return ops.toFixed(3);
+};
