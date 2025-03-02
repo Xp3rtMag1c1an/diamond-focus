@@ -77,15 +77,14 @@ const Index = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Sidebar with Diamond Progress and Task Form */}
+          {/* Diamond Progress */}
           <div className="lg:col-span-4 space-y-8">
             <DiamondProgress />
-            <TaskForm />
           </div>
           
-          {/* Tasks Container */}
+          {/* Tasks Container - Moved Active Tasks above Add Tasks */}
           <div className="lg:col-span-8 space-y-8">
-            {/* Active Tasks */}
+            {/* Active Tasks - Moved up */}
             <div className="glass-panel rounded-3xl overflow-hidden animate-fade-in">
               <div className="p-6">
                 <h2 className="text-lg font-jersey mb-6">Active Tasks</h2>
@@ -105,6 +104,9 @@ const Index = () => {
                 )}
               </div>
             </div>
+            
+            {/* Add Task Form - Moved up */}
+            <TaskForm />
             
             {/* Completed Tasks */}
             {completedTasks.length > 0 && (

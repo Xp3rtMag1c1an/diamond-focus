@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, Layers } from 'lucide-react';
 import { useTasks } from '../../context/TaskContext';
 import { getCurrentInning, getInnings, getInningStatus } from '../../utils/helpers';
 import ScoreboardHeader from './ScoreboardHeader';
@@ -10,8 +11,8 @@ import StatsDisplay from './StatsDisplay';
 import OutsCountDisplay from './OutsCountDisplay';
 import MidInningReview from './MidInningReview';
 import AdrenalineRush from './AdrenalineRush';
-import LeagueStandings from './LeagueStandings';
 import QuickStatsSummary from './QuickStatsSummary';
+import EisenhowerMatrixOverlay from './EisenhowerMatrixOverlay';
 
 const DiamondProgressContainer = () => {
   const { tasks } = useTasks();
@@ -27,6 +28,7 @@ const DiamondProgressContainer = () => {
   const [showRunnerGlow, setShowRunnerGlow] = useState(false);
   const [energyLevel, setEnergyLevel] = useState<'high' | 'medium' | 'low'>('medium');
   const [showFireworks, setShowFireworks] = useState(false);
+  const [showEisenhowerMatrix, setShowEisenhowerMatrix] = useState(false);
   
   // Calculate completion percentage
   const totalTasks = tasks.length;
@@ -134,10 +136,29 @@ const DiamondProgressContainer = () => {
     }
   }, [completionPercentage, showFireworks]);
   
+  // Toggle Eisenhower Matrix overlay
+  const handleToggleEisenhowerMatrix = () => {
+    setShowEisenhowerMatrix(!showEisenhowerMatrix);
+  };
+  
   return (
     <div className="glass-panel rounded-3xl overflow-hidden animate-fade-in">
       <div className="p-6">
-        <h2 className="text-lg font-jersey mb-6">Game Progress</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-jersey">Game Progress</h2>
+          <button 
+            onClick={handleToggleEisenhowerMatrix}
+            className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+              showEisenhowerMatrix 
+                ? 'bg-baseball-navy text-white' 
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+            }`}
+            title="Toggle Eisenhower Matrix View"
+          >
+            <Layers size={16} />
+            <span className="font-jersey">Eisenhower View</span>
+          </button>
+        </div>
         
         {/* Broadcast Message Banner - pass as props */}
         <ScoreboardHeader 
@@ -203,14 +224,23 @@ const DiamondProgressContainer = () => {
               ))}
             </div>
             
-            {/* Baseball Diamond Component */}
-            <BaseballDiamond
-              basePosition={basePosition}
-              runnerPositions={runnerPositions}
-              showRunnerGlow={showRunnerGlow}
-              energyLevel={energyLevel}
-              showFireworks={showFireworks}
-            />
+            {/* Baseball Diamond Component with Eisenhower Matrix Overlay */}
+            <div className="relative">
+              <AnimatePresence>
+                <EisenhowerMatrixOverlay 
+                  showOverlay={showEisenhowerMatrix} 
+                  tasks={tasks} 
+                />
+              </AnimatePresence>
+              
+              <BaseballDiamond
+                basePosition={basePosition}
+                runnerPositions={runnerPositions}
+                showRunnerGlow={showRunnerGlow}
+                energyLevel={energyLevel}
+                showFireworks={showFireworks}
+              />
+            </div>
             
             {/* Stats Display */}
             <StatsDisplay tasks={tasks} />
@@ -238,9 +268,6 @@ const DiamondProgressContainer = () => {
         
         {/* Adrenaline Rush - Comeback Mechanics */}
         <AdrenalineRush showAdrenalineRush={showAdrenalineRush} />
-        
-        {/* League Standings / Leaderboard */}
-        <LeagueStandings />
         
         {/* Quick Stats Summary */}
         <QuickStatsSummary
