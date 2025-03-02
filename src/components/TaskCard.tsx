@@ -5,6 +5,7 @@ import { Task } from '../types';
 import { useTasks } from '../context/TaskContext';
 import { formatDate } from '../utils/helpers';
 import { BaseballBat, BaseballGlove, BaseballCheckmark, BaseballBall } from './BaseballIcons';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface TaskCardProps {
   task: Task;
@@ -43,24 +44,47 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   return (
     <>
       {/* Home Run or Base Hit Animation */}
-      {showAnimation && (
-        animationType === 'homerun' ? (
-          <div className="homerun-animation">
-            <div className="homerun-text">HOME RUN!</div>
-          </div>
-        ) : (
-          <div className="basehit-animation">
-            <div className="flex items-center gap-2">
-              <BaseballBall size={24} className="text-baseball-cream" />
-              <span>Base Hit!</span>
-            </div>
-          </div>
-        )
-      )}
+      <AnimatePresence>
+        {showAnimation && (
+          animationType === 'homerun' ? (
+            <motion.div 
+              className="homerun-animation"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div 
+                className="homerun-text"
+                animate={{ scale: [1, 1.2, 1], rotate: [-3, 3, -3] }}
+                transition={{ duration: 2, repeat: 1 }}
+              >
+                HOME RUN!
+              </motion.div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="basehit-animation"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 100 }}
+            >
+              <div className="flex items-center gap-2">
+                <BaseballBall size={24} className="text-baseball-cream" />
+                <span>Base Hit!</span>
+              </div>
+            </motion.div>
+          )
+        )}
+      </AnimatePresence>
     
-      <div 
+      <motion.div 
         className={`card-container ${task.completed ? 'opacity-80' : ''} mb-5`}
         onClick={handleFlip}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 50 }}
+        whileHover={{ y: -5 }}
       >
         <div className={`card-inner ${isFlipped ? 'rotate-y-180' : ''}`}>
           {/* Card Front - Main Task Info */}
@@ -215,7 +239,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };
