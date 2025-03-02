@@ -4,7 +4,7 @@ import { useTasks } from '../context/TaskContext';
 import { getCurrentInning, getInnings, getInningStatus, calculateBattingAverage, calculateOPS, isOnHotStreak } from '../utils/helpers';
 import { BaseballBase, BaseballBall } from './BaseballIcons';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, ArrowRight, Activity, TrendingUp, Award } from 'lucide-react';
+import { Clock, ArrowRight, Activity, TrendingUp, Award, Star, Bell } from 'lucide-react';
 
 const DiamondProgress = () => {
   const { tasks } = useTasks();
@@ -16,6 +16,10 @@ const DiamondProgress = () => {
   const [showAdrenalineRush, setShowAdrenalineRush] = useState(false);
   const [runnerPositions, setRunnerPositions] = useState<number[]>([]);
   const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [selectedInning, setSelectedInning] = useState(currentInning);
+  const [showRunnerGlow, setShowRunnerGlow] = useState(false);
+  const [energyLevel, setEnergyLevel] = useState<'high' | 'medium' | 'low'>('medium');
+  const [showFireworks, setShowFireworks] = useState(false);
   
   // Calculate completion percentage
   const totalTasks = tasks.length;
@@ -67,7 +71,19 @@ const DiamondProgress = () => {
       newPositions.push(i + 1); // 1 = first base, 2 = second base, 3 = third base
     }
     setRunnerPositions(newPositions);
-  }, [completedTasks]);
+    
+    // Determine energy level based on completion percentage
+    if (completionPercentage < 40) {
+      setEnergyLevel('low');
+    } else if (completionPercentage < 70) {
+      setEnergyLevel('medium');
+    } else {
+      setEnergyLevel('high');
+    }
+    
+    // Show runner glow after positions are set
+    setShowRunnerGlow(true);
+  }, [completedTasks, completionPercentage]);
   
   // Trigger mid-inning review at intervals
   useEffect(() => {
@@ -103,6 +119,10 @@ const DiamondProgress = () => {
       "Trying to get on base with two outs...",
       "Solid contact on that one!",
       "That's a quality at-bat!",
+      "The pitcher looks dialed in today",
+      "Beautiful day for baseball at the ballpark",
+      "Manager checking the bullpen options",
+      "Line drive up the middle!",
     ];
     
     // Update broadcast message every 30 seconds
@@ -118,6 +138,29 @@ const DiamondProgress = () => {
     
     return () => clearInterval(interval);
   }, []);
+  
+  // Handle inning selection
+  const handleInningSelect = (inning: number) => {
+    setSelectedInning(inning);
+    // Add logic here to filter tasks for the selected inning
+  };
+  
+  // Check if we've reached a home run (100% completion)
+  useEffect(() => {
+    if (completionPercentage >= 100 && !showFireworks) {
+      setShowFireworks(true);
+      setTimeout(() => setShowFireworks(false), 5000);
+    }
+  }, [completionPercentage]);
+  
+  // Get glow color based on energy level
+  const getGlowColor = () => {
+    switch (energyLevel) {
+      case 'high': return 'shadow-[0_0_15px_rgba(39,174,96,0.8)]';
+      case 'medium': return 'shadow-[0_0_12px_rgba(243,156,18,0.7)]';
+      case 'low': return 'shadow-[0_0_10px_rgba(231,76,60,0.6)]';
+    }
+  };
   
   return (
     <div className="glass-panel rounded-3xl overflow-hidden animate-fade-in">
@@ -140,17 +183,56 @@ const DiamondProgress = () => {
           )}
         </AnimatePresence>
         
+        {/* Inning Timeline - Stadium Lights Control Panel */}
+        <div className="mb-6 overflow-x-auto hide-scrollbar">
+          <div className="flex space-x-2 py-2 min-w-max">
+            {innings.map(inning => (
+              <motion.button
+                key={inning.number}
+                onClick={() => handleInningSelect(inning.number)}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className={`relative px-4 py-2 rounded-lg font-jersey text-xs flex flex-col items-center ${
+                  selectedInning === inning.number 
+                    ? 'bg-baseball-green text-white' 
+                    : getInningStatus(inning.number) === 'completed'
+                      ? 'bg-baseball-navy/20 text-baseball-navy dark:bg-baseball-navy/40 dark:text-baseball-cream'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                }`}
+              >
+                <span>{inning.number}</span>
+                <span className="text-[10px] opacity-80">{inning.label}</span>
+                {getInningStatus(inning.number) === 'active' && (
+                  <motion.div 
+                    className="absolute -top-1 -right-1 w-3 h-3 bg-baseball-green rounded-full"
+                    animate={{ 
+                      boxShadow: ['0 0 0 rgba(39, 174, 96, 0)', '0 0 8px rgba(39, 174, 96, 0.8)', '0 0 0 rgba(39, 174, 96, 0)'] 
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                )}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+        
         {/* MLB-Style Scoreboard */}
         <div className="mb-6 overflow-hidden rounded-xl border-2 border-baseball-navy dark:border-baseball-cream">
           <div className="bg-baseball-navy text-white p-3">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <span className="font-jersey text-lg mr-2">DIAMOND FOCUS</span>
-                <div className="bg-black/30 px-2 py-1 rounded text-xs">LIVE</div>
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="bg-baseball-red px-2 py-1 rounded text-xs"
+                >
+                  LIVE
+                </motion.div>
               </div>
               <div className="flex items-center">
                 <Clock size={16} className="mr-1" />
-                <span className="text-sm">INNING {currentInning}</span>
+                <span className="text-sm">INNING {selectedInning}</span>
               </div>
             </div>
           </div>
@@ -185,8 +267,25 @@ const DiamondProgress = () => {
               ))}
             </div>
             
-            {/* Base Diagram */}
-            <div className="relative w-full aspect-square max-w-[240px] mx-auto mb-4">
+            {/* Enhanced Baseball Diamond */}
+            <div className="relative w-full aspect-square max-w-[240px] mx-auto mb-6">
+              {/* Diamond Field Background */}
+              <motion.div 
+                className="absolute inset-5 rotate-45 bg-[#27ae60]/20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+              >
+                {/* Grass Texture */}
+                <div className="absolute inset-0 bg-[url('/grass-texture.jpg')] opacity-10 bg-cover mix-blend-overlay" />
+                
+                {/* Field Lines */}
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/60" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/60" />
+                <div className="absolute top-0 bottom-0 left-0 w-0.5 bg-white/60" />
+                <div className="absolute top-0 bottom-0 right-0 w-0.5 bg-white/60" />
+              </motion.div>
+              
               {/* Diamond Shape */}
               <div className="absolute inset-2 rotate-45 border-2 border-baseball-chalk/50" />
               
@@ -204,37 +303,61 @@ const DiamondProgress = () => {
               {/* First Base */}
               <div className="absolute top-1/2 right-0 -translate-y-1/2">
                 <motion.div
-                  initial={{ opacity: basePosition >= 1 ? 1 : 0 }}
-                  animate={{ opacity: basePosition >= 1 ? 1 : 0 }}
+                  initial={{ opacity: basePosition >= 1 ? 1 : 0.4 }}
+                  animate={{ opacity: basePosition >= 1 ? 1 : 0.4 }}
                   transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.1 }}
+                  className="relative group"
                 >
                   <BaseballBase className={`w-6 h-6 ${basePosition >= 1 ? 'active' : ''}`} />
+                  
+                  {/* Tooltip on hover */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 bg-black/80 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    <p className="font-bold mb-1">First Base</p>
+                    <p>25% completion</p>
+                  </div>
                 </motion.div>
               </div>
               
               {/* Second Base */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2">
                 <motion.div
-                  initial={{ opacity: basePosition >= 2 ? 1 : 0 }}
-                  animate={{ opacity: basePosition >= 2 ? 1 : 0 }}
+                  initial={{ opacity: basePosition >= 2 ? 1 : 0.4 }}
+                  animate={{ opacity: basePosition >= 2 ? 1 : 0.4 }}
                   transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.1 }}
+                  className="relative group"
                 >
                   <BaseballBase className={`w-6 h-6 ${basePosition >= 2 ? 'active' : ''}`} />
+                  
+                  {/* Tooltip on hover */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 bg-black/80 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    <p className="font-bold mb-1">Second Base</p>
+                    <p>50% completion</p>
+                  </div>
                 </motion.div>
               </div>
               
               {/* Third Base */}
               <div className="absolute top-1/2 left-0 -translate-y-1/2">
                 <motion.div
-                  initial={{ opacity: basePosition >= 3 ? 1 : 0 }}
-                  animate={{ opacity: basePosition >= 3 ? 1 : 0 }}
+                  initial={{ opacity: basePosition >= 3 ? 1 : 0.4 }}
+                  animate={{ opacity: basePosition >= 3 ? 1 : 0.4 }}
                   transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.1 }}
+                  className="relative group"
                 >
                   <BaseballBase className={`w-6 h-6 ${basePosition >= 3 ? 'active' : ''}`} />
+                  
+                  {/* Tooltip on hover */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 bg-black/80 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    <p className="font-bold mb-1">Third Base</p>
+                    <p>75% completion</p>
+                  </div>
                 </motion.div>
               </div>
               
-              {/* Runners */}
+              {/* Enhanced Runners with Energy Glow */}
               <AnimatePresence>
                 {runnerPositions.map((position, index) => (
                   <motion.div 
@@ -253,19 +376,80 @@ const DiamondProgress = () => {
                     exit={{ opacity: 0, scale: 0 }}
                     transition={{ duration: 0.8, type: "spring" }}
                   >
-                    <BaseballBall className="w-5 h-5 text-baseball-cream" />
+                    <motion.div
+                      className={`${showRunnerGlow ? getGlowColor() : ''} rounded-full p-1`}
+                      animate={showRunnerGlow ? { scale: [1, 1.08, 1] } : {}}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <BaseballBall className="w-5 h-5 text-baseball-cream" />
+                    </motion.div>
+                    
+                    {/* Dust Cloud Animation when runner stops */}
+                    <motion.div
+                      className="absolute inset-0 bg-white/30 rounded-full"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: [0, 1.5], opacity: [0, 0.5, 0] }}
+                      transition={{ duration: 0.5, delay: 0.7 }}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>
+              
+              {/* Home Run Fireworks Animation */}
+              <AnimatePresence>
+                {showFireworks && (
+                  <>
+                    {[...Array(12)].map((_, i) => (
+                      <motion.div
+                        key={`firework-${i}`}
+                        className="absolute"
+                        style={{
+                          top: `${20 + Math.random() * 60}%`,
+                          left: `${20 + Math.random() * 60}%`,
+                        }}
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ 
+                          scale: [0, 1 + Math.random() * 0.5],
+                          opacity: [0, 0.8, 0]
+                        }}
+                        transition={{ 
+                          duration: 0.8 + Math.random() * 0.5,
+                          delay: Math.random() * 0.5
+                        }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <div className={`w-2 h-2 rounded-full ${
+                          ['bg-baseball-red', 'bg-baseball-green', 'bg-baseball-cream', 'bg-baseball-navy'][Math.floor(Math.random() * 4)]
+                        }`} />
+                      </motion.div>
+                    ))}
+                    
+                    <motion.div
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-jersey text-3xl text-baseball-red whitespace-nowrap z-20"
+                      initial={{ scale: 0, opacity: 0, rotate: -5 }}
+                      animate={{ 
+                        scale: [0, 1.2, 1],
+                        opacity: [0, 1, 1, 0],
+                        rotate: [-10, 5, -5]
+                      }}
+                      transition={{ duration: 3 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      HOME RUN!
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
             
-            {/* Stats Display */}
+            {/* Enhanced Stats Display */}
             <div className="grid grid-cols-3 gap-3 mb-4">
               <motion.div 
                 className="bg-black/40 p-3 rounded-lg text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
+                whileHover={{ y: -3, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
               >
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <TrendingUp size={14} className="text-baseball-green" />
@@ -279,6 +463,7 @@ const DiamondProgress = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                whileHover={{ y: -3, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
               >
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <Activity size={14} className="text-baseball-navy" />
@@ -292,6 +477,7 @@ const DiamondProgress = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
+                whileHover={{ y: -3, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
               >
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <Award size={14} className="text-baseball-red" />
@@ -299,7 +485,15 @@ const DiamondProgress = () => {
                 </div>
                 <div className="text-xl font-bold text-white flex items-center justify-center">
                   {streak}
-                  {isHotStreak && <span className="ml-2 text-baseball-red animate-pulse">🔥</span>}
+                  {isHotStreak && (
+                    <motion.div 
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                      className="ml-1 text-baseball-red"
+                    >
+                      <Star size={16} className="fill-baseball-red" />
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -310,11 +504,15 @@ const DiamondProgress = () => {
                 <span className="text-xs text-gray-400 uppercase">Outs</span>
                 <div className="flex mt-1 gap-2">
                   {[...Array(2)].map((_, i) => (
-                    <div 
+                    <motion.div 
                       key={i} 
                       className={`w-4 h-4 rounded-full ${
                         i < (isBehindOnTasks ? 2 : 0) ? 'bg-baseball-red' : 'bg-gray-700'
                       }`}
+                      animate={i < (isBehindOnTasks ? 2 : 0) ? {
+                        boxShadow: ['0 0 0 rgba(231, 76, 60, 0)', '0 0 5px rgba(231, 76, 60, 0.8)', '0 0 0 rgba(231, 76, 60, 0)']
+                      } : {}}
+                      transition={{ duration: 2, repeat: Infinity }}
                     />
                   ))}
                 </div>
@@ -330,7 +528,15 @@ const DiamondProgress = () => {
               <div>
                 <span className="text-xs text-gray-400 uppercase">Count</span>
                 <div className="flex gap-1 text-white">
-                  <span className="font-bold">{completedTasks}</span>
+                  <motion.span 
+                    className="font-bold"
+                    key={completedTasks}
+                    initial={{ scale: 1 }}
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {completedTasks}
+                  </motion.span>
                   <span>-</span>
                   <span className="font-bold">{totalTasks - completedTasks}</span>
                 </div>
@@ -413,6 +619,7 @@ const DiamondProgress = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
+                whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                 className={`flex justify-between items-center px-4 py-3 border-b border-gray-800 last:border-0 ${
                   player.name === "You" ? "bg-baseball-green/20" : ""
                 }`}
@@ -424,7 +631,15 @@ const DiamondProgress = () => {
                 </div>
                 <div className="flex items-center">
                   <div className="scoreboard-digit mr-3">{player.ops.toFixed(3)}</div>
-                  {index === 0 && <span className="text-yellow-400">🏆</span>}
+                  {index === 0 && (
+                    <motion.span 
+                      className="text-yellow-400"
+                      animate={{ rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 5, repeat: Infinity }}
+                    >
+                      🏆
+                    </motion.span>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -433,18 +648,26 @@ const DiamondProgress = () => {
         
         {/* Quick Stats Summary */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="neumorph-inset p-4 text-center">
+          <motion.div 
+            className="neumorph-inset p-4 text-center"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <h3 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1 font-jersey">Defense</h3>
             <p className="text-xl font-semibold">
               <span className="scoreboard-digit mr-1">{completedDefense}</span> / {defenseTasks.length}
             </p>
-          </div>
-          <div className="neumorph-inset p-4 text-center">
+          </motion.div>
+          <motion.div 
+            className="neumorph-inset p-4 text-center"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <h3 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1 font-jersey">Offense</h3>
             <p className="text-xl font-semibold">
               <span className="scoreboard-digit mr-1">{completedOffense}</span> / {offenseTasks.length}
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
       
