@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Clock, Trash2, Fire } from 'lucide-react';
+import { Clock, Trash2 } from 'lucide-react';
 import { Task } from '../types';
 import { useTasks } from '../context/TaskContext';
 import { formatDate } from '../utils/helpers';
