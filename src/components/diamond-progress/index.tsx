@@ -1,18 +1,33 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTasks } from '../../context/TaskContext';
 import DiamondProgressContainer from './DiamondProgressContainer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, ArrowRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 // This is the main component that will be imported by other components
 const DiamondProgress = () => {
   const { tasks } = useTasks();
-  
+  const { toast } = useToast();
+  const [showEisenhowerMatrix, setShowEisenhowerMatrix] = useState(false);
+
   // Calculate completion percentage
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(task => task.completed).length;
   const completionPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+  
+  // Toggle Eisenhower Matrix overlay
+  const toggleEisenhowerMatrix = () => {
+    setShowEisenhowerMatrix(prev => !prev);
+    toast({
+      title: showEisenhowerMatrix ? "Eisenhower Matrix hidden" : "Eisenhower Matrix visible",
+      description: showEisenhowerMatrix ? 
+        "Switched to standard diamond view" : 
+        "Now viewing tasks by urgency and importance",
+      duration: 3000,
+    });
+  };
   
   // Side effects from the original component
   useEffect(() => {
@@ -25,7 +40,10 @@ const DiamondProgress = () => {
   }, [completionPercentage]);
   
   return (
-    <DiamondProgressContainer />
+    <DiamondProgressContainer 
+      showEisenhowerMatrix={showEisenhowerMatrix}
+      toggleEisenhowerMatrix={toggleEisenhowerMatrix}
+    />
   );
 };
 
