@@ -13,26 +13,72 @@ import AdrenalineRush from './AdrenalineRush';
 import LeagueStandings from './LeagueStandings';
 import { Button } from '../ui/button';
 import { Activity, Eye, EyeOff } from 'lucide-react';
+import { Task, InningInfo } from '../../types';
 
 interface DiamondProgressContainerProps {
   showEisenhowerMatrix: boolean;
   toggleEisenhowerMatrix: () => void;
+  broadcastMessage: string;
+  showAdrenalineRush: boolean;
+  innings: InningInfo[];
+  selectedInning: number;
+  handleInningSelect: (inning: number) => void;
+  basePosition: number;
+  runnerPositions: number[];
+  showRunnerGlow: boolean;
+  energyLevel: 'high' | 'medium' | 'low';
+  showFireworks: boolean;
+  completedDefense: number;
+  defenseTasks: number;
+  completedOffense: number;
+  offenseTasks: number;
+  completedTasks: number;
+  totalTasks: number;
+  isBehindOnTasks: boolean;
+  tasks: Task[];
+  showMidInningReview: boolean;
+  currentInning: number;
 }
 
 const DiamondProgressContainer: React.FC<DiamondProgressContainerProps> = ({
   showEisenhowerMatrix,
-  toggleEisenhowerMatrix
+  toggleEisenhowerMatrix,
+  broadcastMessage,
+  showAdrenalineRush,
+  innings,
+  selectedInning,
+  handleInningSelect,
+  basePosition,
+  runnerPositions,
+  showRunnerGlow,
+  energyLevel,
+  showFireworks,
+  completedDefense,
+  defenseTasks,
+  completedOffense,
+  offenseTasks,
+  completedTasks,
+  totalTasks,
+  isBehindOnTasks,
+  tasks,
+  showMidInningReview,
+  currentInning
 }) => {
-  const { tasks } = useTasks();
-  
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-6">
       <div className="mb-8">
-        <ScoreboardHeader />
+        <ScoreboardHeader 
+          broadcastMessage={broadcastMessage}
+          showAdrenalineRush={showAdrenalineRush}
+        />
       </div>
       
       <div className="mb-6 flex items-center justify-between">
-        <InningTimeline />
+        <InningTimeline 
+          innings={innings} 
+          selectedInning={selectedInning} 
+          handleInningSelect={handleInningSelect} 
+        />
         <Button 
           onClick={toggleEisenhowerMatrix}
           variant="outline" 
@@ -45,21 +91,45 @@ const DiamondProgressContainer: React.FC<DiamondProgressContainerProps> = ({
       </div>
       
       <div className="relative mb-10">
-        <BaseballDiamond />
+        <BaseballDiamond 
+          basePosition={basePosition}
+          runnerPositions={runnerPositions}
+          showRunnerGlow={showRunnerGlow}
+          energyLevel={energyLevel}
+          showFireworks={showFireworks}
+        />
         
         {/* Eisenhower Matrix Overlay */}
         <EisenhowerMatrixOverlay showOverlay={showEisenhowerMatrix} tasks={tasks} />
         
         <div className="mt-2 flex justify-between items-center">
-          <QuickStatsSummary />
-          <OutsCountDisplay />
+          <QuickStatsSummary 
+            completedDefense={completedDefense}
+            defenseTasks={defenseTasks}
+            completedOffense={completedOffense}
+            offenseTasks={offenseTasks}
+          />
+          <OutsCountDisplay 
+            completedTasks={completedTasks}
+            totalTasks={totalTasks}
+            isBehindOnTasks={isBehindOnTasks}
+          />
         </div>
       </div>
       
       <div className="space-y-8">
-        <StatsDisplay />
-        <MidInningReview />
-        <AdrenalineRush />
+        <StatsDisplay tasks={tasks} />
+        <MidInningReview 
+          showMidInningReview={showMidInningReview}
+          completedTasks={completedTasks}
+          totalTasks={totalTasks}
+          completedOffense={completedOffense}
+          offenseTasks={tasks.filter(t => t.type === 'offense' || t.priority === 'urgent_important' || t.priority === 'not_urgent_important')}
+          completedDefense={completedDefense}
+          defenseTasks={tasks.filter(t => t.type === 'defense' || t.priority === 'urgent_not_important' || t.priority === 'not_urgent_not_important')}
+          currentInning={currentInning}
+        />
+        <AdrenalineRush showAdrenalineRush={showAdrenalineRush} />
         <LeagueStandings />
       </div>
     </div>
