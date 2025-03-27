@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Task, TaskCategory, TaskPriority, UserStats } from '../types';
 import { generateId, canSwitchToOffense, generateEnergyForecast, playSound } from '../utils/helpers';
@@ -120,10 +119,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     
-    if (category === 'offense' && !isOffenseEnabled) {
-      toast.error("Complete 3 defense tasks to unlock offense mode");
-      return;
-    }
+    // Removed the check for offense tasks that required 3 completed defense tasks
     
     setLoading(true);
     try {

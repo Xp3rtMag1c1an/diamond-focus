@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { getCurrentInning, getInnings } from '../utils/helpers';
@@ -8,17 +7,15 @@ import { BaseballBat, BaseballGlove } from './BaseballIcons';
 import { toast } from 'sonner';
 
 const TaskForm = () => {
-  const { addTask, isOffenseEnabled, tasks } = useTasks();
+  const { addTask, tasks } = useTasks();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<TaskCategory>('defense');
   const [inning, setInning] = useState<number>(getCurrentInning());
   
-  // Check for milestones/rewards
   useEffect(() => {
     const completedTaskCount = tasks.filter(task => task.completed).length;
     
-    // Milestone rewards
     if (completedTaskCount === 10) {
       toast.success(
         <div className="flex items-center gap-2">
@@ -61,7 +58,6 @@ const TaskForm = () => {
     
     addTask(title, description, category, inning);
     
-    // Reset form
     setTitle('');
     setDescription('');
     setCategory('defense');
@@ -124,24 +120,15 @@ const TaskForm = () => {
                 type="button"
                 onClick={() => setCategory('offense')}
                 className={`flex-1 py-3 flex items-center justify-center gap-2 rounded-lg border transition-all ${
-                  !isOffenseEnabled ? 'opacity-60 cursor-not-allowed' : ''
-                } ${
                   category === 'offense'
                     ? 'bg-baseball-navy text-white border-baseball-navy'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
-                disabled={!isOffenseEnabled}
-                title={!isOffenseEnabled ? 'Complete 3 defense tasks to unlock' : undefined}
               >
                 <BaseballBat size={18} />
                 <span className="font-jersey">Offense</span>
               </button>
             </div>
-            {!isOffenseEnabled && (
-              <p className="mt-2 text-xs text-amber-600">
-                Complete 3 defense tasks to unlock offense mode
-              </p>
-            )}
           </div>
           
           <div className="mb-6">
