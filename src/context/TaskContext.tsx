@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Task, TaskCategory, TaskPriority, UserStats } from '../types';
 import { generateId, canSwitchToOffense, generateEnergyForecast, playSound } from '../utils/helpers';
@@ -158,6 +159,13 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const taskToComplete = tasks.find(task => task.id === id);
       if (!taskToComplete) {
         toast.error("Task not found");
+        return;
+      }
+      
+      // Check if it's an offense task and if there are enough completed defense tasks
+      if (taskToComplete.category === 'offense' && !isOffenseEnabled) {
+        toast.error("You need to complete at least 3 DEFENSE tasks first!");
+        setLoading(false);
         return;
       }
       

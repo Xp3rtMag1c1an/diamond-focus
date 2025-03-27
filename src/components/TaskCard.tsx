@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Clock, Trash2 } from 'lucide-react';
 import { Task } from '../types';
@@ -12,7 +11,7 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
-  const { completeTask, deleteTask } = useTasks();
+  const { completeTask, deleteTask, isOffenseEnabled } = useTasks();
   const [isFlipped, setIsFlipped] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const [animationType, setAnimationType] = useState<'homerun' | 'basehit'>(task.category === 'offense' ? 'homerun' : 'basehit');
@@ -23,6 +22,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   
   const handleComplete = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // If it's an offense task and not enough defense tasks are completed, show notification
+    if (task.category === 'offense' && !isOffenseEnabled) {
+      // We'll let the context handle the error notification
+      completeTask(task.id);
+      return;
+    }
     
     // Determine animation type based on task category
     const animType = task.category === 'offense' ? 'homerun' : 'basehit';
