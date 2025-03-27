@@ -1,130 +1,114 @@
-
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTasks } from '../../context/TaskContext';
 import DiamondProgressContainer from './DiamondProgressContainer';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, ArrowRight } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { InningInfo } from '../../types';
+import { Task, InningInfo } from '../../types';
 
-// This is the main component that will be imported by other components
 const DiamondProgress = () => {
   const { tasks } = useTasks();
-  const { toast } = useToast();
   const [showEisenhowerMatrix, setShowEisenhowerMatrix] = useState(false);
-  const [showAdrenalineRush, setShowAdrenalineRush] = useState(false);
   const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [showAdrenalineRush, setShowAdrenalineRush] = useState(false);
+  const [selectedInning, setSelectedInning] = useState(1);
   const [basePosition, setBasePosition] = useState(0);
   const [runnerPositions, setRunnerPositions] = useState<number[]>([]);
   const [showRunnerGlow, setShowRunnerGlow] = useState(false);
-  const [energyLevel, setEnergyLevel] = useState<'high' | 'medium' | 'low'>('medium');
   const [showFireworks, setShowFireworks] = useState(false);
   const [showMidInningReview, setShowMidInningReview] = useState(false);
-  const [selectedInning, setSelectedInning] = useState(1);
-  
-  // Mock innings data
+
+  // Define innings with time property added
   const innings: InningInfo[] = [
-    { number: 1, label: "1st" },
-    { number: 2, label: "2nd" },
-    { number: 3, label: "3rd" },
-    { number: 4, label: "4th" },
-    { number: 5, label: "5th" },
-    { number: 6, label: "6th" },
-    { number: 7, label: "7th" },
-    { number: 8, label: "8th" },
-    { number: 9, label: "9th" }
+    { number: 1, time: '6:00-9:00', label: 'Early Morning' },
+    { number: 2, time: '9:00-11:00', label: 'Mid Morning' },
+    { number: 3, time: '11:00-13:00', label: 'Late Morning' },
+    { number: 4, time: '13:00-15:00', label: 'Early Afternoon' },
+    { number: 5, time: '15:00-17:00', label: 'Mid Afternoon' },
+    { number: 6, time: '17:00-19:00', label: 'Late Afternoon' },
+    { number: 7, time: '19:00-21:00', label: 'Early Evening' },
+    { number: 8, time: '21:00-23:00', label: 'Mid Evening' },
+    { number: 9, time: '23:00-24:00', label: 'Late Evening' },
   ];
 
-  // Calculate completion percentage
-  const totalTasks = tasks.length;
+  // Other calculations and effects
+  const currentInning = new Date().getHours() < 12 ? 1 : new Date().getHours() < 18 ? 4 : 7;
+  
   const completedTasks = tasks.filter(task => task.completed).length;
-  const completionPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+  const totalTasks = tasks.length;
+  const isBehindOnTasks = totalTasks > 0 && completedTasks / totalTasks < 0.3;
   
-  // Calculate offense/defense tasks
-  const offenseTasks = tasks.filter(task => task.type === 'offense' || task.priority === 'urgent_important' || task.priority === 'not_urgent_important');
-  const defenseTasks = tasks.filter(task => task.type === 'defense' || task.priority === 'urgent_not_important' || task.priority === 'not_urgent_not_important');
-  const completedOffense = offenseTasks.filter(task => task.completed).length;
-  const completedDefense = defenseTasks.filter(task => task.completed).length;
+  const completedOffense = tasks.filter(task => task.type === 'offense' && task.completed).length;
+  const offenseTasks = tasks.filter(task => task.type === 'offense').length;
   
-  // Determine if user is behind on tasks
-  const isBehindOnTasks = totalTasks > 0 && completionPercentage < 30;
+  const completedDefense = tasks.filter(task => task.type === 'defense' && task.completed).length;
+  const defenseTasks = tasks.filter(task => task.type === 'defense').length;
   
-  // Set base position based on completion percentage
-  useEffect(() => {
-    if (completionPercentage >= 75) {
-      setBasePosition(3);
-      setRunnerPositions([1, 2, 3]);
-    } else if (completionPercentage >= 50) {
-      setBasePosition(2);
-      setRunnerPositions([1, 2]);
-    } else if (completionPercentage >= 25) {
-      setBasePosition(1);
-      setRunnerPositions([1]);
-    } else {
-      setBasePosition(0);
-      setRunnerPositions([]);
-    }
-    
-    // Set energy level based on completion
-    if (completionPercentage >= 60) {
-      setEnergyLevel('high');
-    } else if (completionPercentage >= 30) {
-      setEnergyLevel('medium');
-    } else {
-      setEnergyLevel('low');
-    }
-    
-    // Show fireworks at 100%
-    if (completionPercentage >= 100) {
-      setShowFireworks(true);
-      setBroadcastMessage('HOME RUN! All tasks completed!');
-      setShowRunnerGlow(true);
-    } else {
-      setShowFireworks(false);
-    }
-    
-    // Show adrenaline rush if behind
-    setShowAdrenalineRush(isBehindOnTasks);
-    
-    // Show mid-inning review at 50%
-    setShowMidInningReview(completionPercentage >= 50 && completionPercentage < 100);
-    
-  }, [completionPercentage, isBehindOnTasks]);
-  
-  // Handle inning selection
+  const energyLevel = 
+    completedTasks >= 5 ? 'high' :
+    completedTasks >= 2 ? 'medium' : 'low';
+
+  // Handlers and effects
   const handleInningSelect = (inning: number) => {
     setSelectedInning(inning);
-    toast({
-      title: `Inning ${inning} selected`,
-      description: `Viewing tasks for inning ${inning}`,
-      duration: 3000,
-    });
   };
-  
-  // Toggle Eisenhower Matrix overlay
+
   const toggleEisenhowerMatrix = () => {
-    setShowEisenhowerMatrix(prev => !prev);
-    toast({
-      title: showEisenhowerMatrix ? "Eisenhower Matrix hidden" : "Eisenhower Matrix visible",
-      description: showEisenhowerMatrix ? 
-        "Switched to standard diamond view" : 
-        "Now viewing tasks by urgency and importance",
-      duration: 3000,
-    });
+    setShowEisenhowerMatrix(!showEisenhowerMatrix);
   };
-  
-  // Side effects from the original component
+
+  // Update some states for demo purposes
   useEffect(() => {
-    // This effect or other critical effects from the original component can be kept here
-    // For example, checking if we've reached a home run (100% completion)
-    if (completionPercentage >= 100) {
-      // Trigger home run celebrations or other effects
-      console.log("Home run achieved!");
-    }
-  }, [completionPercentage]);
-  
+    const interval = setInterval(() => {
+      // Randomly show broadcast messages
+      if (Math.random() > 0.7 && !broadcastMessage) {
+        const messages = [
+          "Home run! You completed a high-priority task!",
+          "Double play! You're making great progress!",
+          "Strike out! Don't forget to take breaks!",
+          "Perfect game in progress! Keep up the momentum!",
+          "Seventh inning stretch! Time to refresh your energy!"
+        ];
+        setBroadcastMessage(messages[Math.floor(Math.random() * messages.length)]);
+        setTimeout(() => setBroadcastMessage(''), 5000);
+      }
+      
+      // Randomly trigger adrenaline rush
+      if (Math.random() > 0.9 && !showAdrenalineRush) {
+        setShowAdrenalineRush(true);
+        setTimeout(() => setShowAdrenalineRush(false), 8000);
+      }
+      
+      // Update base position based on completed tasks
+      const newPosition = Math.min(4, Math.floor(completedTasks / 3));
+      if (newPosition !== basePosition) {
+        setBasePosition(newPosition);
+        setShowRunnerGlow(true);
+        setTimeout(() => setShowRunnerGlow(false), 2000);
+      }
+      
+      // Show fireworks on home run
+      if (newPosition === 4 && basePosition !== 4) {
+        setShowFireworks(true);
+        setTimeout(() => setShowFireworks(false), 3000);
+      }
+      
+      // Update runner positions
+      const newRunners = [];
+      if (completedOffense > 0) newRunners.push(1);
+      if (completedOffense > 2) newRunners.push(2);
+      if (completedOffense > 4) newRunners.push(3);
+      setRunnerPositions(newRunners);
+      
+      // Show mid-inning review
+      const currentHour = new Date().getHours();
+      const isReviewTime = currentHour === 12 || currentHour === 17 || currentHour === 22;
+      setShowMidInningReview(isReviewTime);
+      
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [basePosition, completedTasks, completedOffense, broadcastMessage, showAdrenalineRush]);
+
   return (
-    <DiamondProgressContainer 
+    <DiamondProgressContainer
       showEisenhowerMatrix={showEisenhowerMatrix}
       toggleEisenhowerMatrix={toggleEisenhowerMatrix}
       broadcastMessage={broadcastMessage}
@@ -138,15 +122,15 @@ const DiamondProgress = () => {
       energyLevel={energyLevel}
       showFireworks={showFireworks}
       completedDefense={completedDefense}
-      defenseTasks={defenseTasks.length}
+      defenseTasks={defenseTasks}
       completedOffense={completedOffense}
-      offenseTasks={offenseTasks.length}
+      offenseTasks={offenseTasks}
       completedTasks={completedTasks}
       totalTasks={totalTasks}
       isBehindOnTasks={isBehindOnTasks}
       tasks={tasks}
       showMidInningReview={showMidInningReview}
-      currentInning={selectedInning}
+      currentInning={currentInning}
     />
   );
 };

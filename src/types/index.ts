@@ -9,6 +9,7 @@ export interface Task {
   title: string;
   description: string;
   category: TaskCategory;
+  type?: 'offense' | 'defense'; // Adding this property to fix the type errors
   priority?: TaskPriority;
   completed: boolean;
   completion_percentage?: number;

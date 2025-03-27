@@ -1,13 +1,18 @@
 
 import { useState } from 'react';
 import { useTasks } from '../context/TaskContext';
-import { Coffee, Menu, X } from 'lucide-react';
+import { Coffee, Menu, X, ClipboardList } from 'lucide-react';
 import { getCurrentInning, getInnings } from '../utils/helpers';
 import { Scoreboard, Stadium } from './BaseballIcons';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
+import { Button } from './ui/button';
+import { Textarea } from './ui/textarea';
 
 const Navbar = () => {
   const { energyForecast, requestBreak } = useTasks();
   const [isOpen, setIsOpen] = useState(false);
+  const [scoutingModalOpen, setScoutingModalOpen] = useState(false);
+  const [scoutingNotes, setScoutingNotes] = useState('');
   
   const currentInning = getCurrentInning();
   const innings = getInnings();
@@ -41,7 +46,7 @@ const Navbar = () => {
           </button>
           
           <button
-            onClick={() => {}}
+            onClick={() => setScoutingModalOpen(true)}
             className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-baseball-green rounded-md transition-all hover:bg-baseball-darkGreen"
           >
             <Scoreboard size={16} />
@@ -81,7 +86,7 @@ const Navbar = () => {
             </button>
             
             <button
-              onClick={() => {}}
+              onClick={() => setScoutingModalOpen(true)}
               className="flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-medium text-white bg-baseball-green rounded-md transition-all hover:bg-baseball-darkGreen"
             >
               <Stadium size={16} />
@@ -90,6 +95,48 @@ const Navbar = () => {
           </div>
         </div>
       )}
+
+      {/* Scouting Report Modal */}
+      <Dialog open={scoutingModalOpen} onOpenChange={setScoutingModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ClipboardList className="h-5 w-5" />
+              Scouting Report
+            </DialogTitle>
+            <DialogDescription>
+              Take notes on your tasks, priorities, or any game-changing ideas.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Textarea
+              className="min-h-[200px] font-medium"
+              placeholder="Add your scouting notes here..."
+              value={scoutingNotes}
+              onChange={(e) => setScoutingNotes(e.target.value)}
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button
+              variant="outline" 
+              onClick={() => setScoutingModalOpen(false)}
+            >
+              Close
+            </Button>
+            <Button 
+              onClick={() => {
+                // In a real app, you might save these notes to state or local storage
+                console.log('Saving scouting notes:', scoutingNotes);
+                setScoutingModalOpen(false);
+              }}
+            >
+              Save Notes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 };
