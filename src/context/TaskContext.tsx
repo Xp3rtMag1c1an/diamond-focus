@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import { Task, TaskCategory, TaskPriority, UserStats } from '../types';
 import { canSwitchToOffense } from '../utils/helpers';
 import { useTaskEffects } from '../hooks/useTaskEffects';
@@ -23,31 +23,21 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Extract task-related state and effects
-  const { tasks, userStats, energyForecast, loading, userId } = useTaskEffects();
-  
-  // Calculate if offense is enabled (requires 3 completed defense tasks)
+  const { tasks, setTasks, userStats, energyForecast, loading, userId } = useTaskEffects();
+
   const isOffenseEnabled = canSwitchToOffense(tasks);
-  
-  // State for loading indicator
-  const [isLoading, setIsLoading] = useState(false);
-  const currentLoading = loading || isLoading;
-  
-  // Extract task action handlers
+
   const { addTask, completeTask, deleteTask } = useTaskActions({
     userId,
     isOffenseEnabled,
-    setLoading: setIsLoading
+    setTasks
   });
-  
-  // Extract break functionality
+
   const { requestBreak } = useBreak();
-  
-  // Filter active and completed tasks
+
   const activeTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
-  
-  // Create the context value object
+
   const value = {
     tasks,
     activeTasks,
@@ -59,9 +49,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isOffenseEnabled,
     energyForecast,
     requestBreak,
-    loading: currentLoading
+    loading
   };
-  
+
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };
 

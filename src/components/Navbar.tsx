@@ -4,6 +4,7 @@ import { useTasks } from '../context/TaskContext';
 import { Coffee, Menu, X, ClipboardList } from 'lucide-react';
 import { getCurrentInning, getInnings } from '../utils/helpers';
 import { Scoreboard, Stadium } from './BaseballIcons';
+import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
@@ -12,7 +13,9 @@ const Navbar = () => {
   const { energyForecast, requestBreak } = useTasks();
   const [isOpen, setIsOpen] = useState(false);
   const [scoutingModalOpen, setScoutingModalOpen] = useState(false);
-  const [scoutingNotes, setScoutingNotes] = useState('');
+  const [scoutingNotes, setScoutingNotes] = useState(() => {
+    return localStorage.getItem('diamond-focus-dugout-notes') || '';
+  });
   
   const currentInning = getCurrentInning();
   const innings = getInnings();
@@ -50,7 +53,7 @@ const Navbar = () => {
             className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-baseball-green rounded-md transition-all hover:bg-baseball-darkGreen"
           >
             <Scoreboard size={16} />
-            <span>Scouting Report</span>
+            <span>Dugout Notes</span>
           </button>
         </div>
         
@@ -90,19 +93,19 @@ const Navbar = () => {
               className="flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-medium text-white bg-baseball-green rounded-md transition-all hover:bg-baseball-darkGreen"
             >
               <Stadium size={16} />
-              <span>Scouting Report</span>
+              <span>Dugout Notes</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Scouting Report Modal */}
+      {/* Dugout Notes Modal */}
       <Dialog open={scoutingModalOpen} onOpenChange={setScoutingModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ClipboardList className="h-5 w-5" />
-              Scouting Report
+              Dugout Notes
             </DialogTitle>
             <DialogDescription>
               Take notes on your tasks, priorities, or any game-changing ideas.
@@ -125,10 +128,10 @@ const Navbar = () => {
             >
               Close
             </Button>
-            <Button 
+            <Button
               onClick={() => {
-                // In a real app, you might save these notes to state or local storage
-                console.log('Saving scouting notes:', scoutingNotes);
+                localStorage.setItem('diamond-focus-dugout-notes', scoutingNotes);
+                toast.success('Dugout notes saved!');
                 setScoutingModalOpen(false);
               }}
             >
