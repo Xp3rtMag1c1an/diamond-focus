@@ -55,22 +55,29 @@ export const canSwitchToOffense = (tasks: Task[]): boolean => {
   return completedDefenseTasks >= 3;
 };
 
-// Generate energy forecast for the day
+// Generate energy forecast based on current inning / time of day
 export const generateEnergyForecast = (): { level: 'high' | 'medium' | 'low', message: string } => {
-  const levels = ['high', 'medium', 'low'] as const;
-  const randomIndex = Math.floor(Math.random() * levels.length);
-  const level = levels[randomIndex];
-  
+  const inning = getCurrentInning();
+
+  // Morning innings (1-3): high energy
+  // Afternoon innings (4-6): medium energy
+  // Evening innings (7-9): low energy, wind down
+  let level: 'high' | 'medium' | 'low';
+  if (inning <= 3) {
+    level = 'high';
+  } else if (inning <= 6) {
+    level = 'medium';
+  } else {
+    level = 'low';
+  }
+
   const messages = {
-    high: "You're at peak energy today. Great time to tackle challenging tasks!",
-    medium: "Steady energy levels today. Focus on consistent progress.",
-    low: "Energy might be limited today. Prioritize essential tasks and take breaks."
+    high: "Morning innings — peak energy. Tackle your toughest defense tasks now!",
+    medium: "Afternoon stretch — steady energy. Good time for offense tasks and progress.",
+    low: "Evening innings — conserve energy. Wrap up, review your scoreboard, and plan tomorrow."
   };
-  
-  return {
-    level,
-    message: messages[level]
-  };
+
+  return { level, message: messages[level] };
 };
 
 // Get inning status (active, completed, upcoming)

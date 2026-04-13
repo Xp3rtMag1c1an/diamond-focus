@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTasks } from '../../context/TaskContext';
 import DiamondProgressContainer from './DiamondProgressContainer';
 import { Task, InningInfo } from '../../types';
+import { getInnings, getCurrentInning } from '../../utils/helpers';
 
 const DiamondProgress = () => {
   const { tasks } = useTasks();
@@ -15,31 +16,21 @@ const DiamondProgress = () => {
   const [showFireworks, setShowFireworks] = useState(false);
   const [showMidInningReview, setShowMidInningReview] = useState(false);
 
-  // Define innings with time property added
-  const innings: InningInfo[] = [
-    { number: 1, time: '6:00-9:00', label: 'Early Morning' },
-    { number: 2, time: '9:00-11:00', label: 'Mid Morning' },
-    { number: 3, time: '11:00-13:00', label: 'Late Morning' },
-    { number: 4, time: '13:00-15:00', label: 'Early Afternoon' },
-    { number: 5, time: '15:00-17:00', label: 'Mid Afternoon' },
-    { number: 6, time: '17:00-19:00', label: 'Late Afternoon' },
-    { number: 7, time: '19:00-21:00', label: 'Early Evening' },
-    { number: 8, time: '21:00-23:00', label: 'Mid Evening' },
-    { number: 9, time: '23:00-24:00', label: 'Late Evening' },
-  ];
+  // Single source of truth for innings from helpers.ts
+  const innings: InningInfo[] = getInnings();
 
-  // Other calculations and effects
-  const currentInning = new Date().getHours() < 12 ? 1 : new Date().getHours() < 18 ? 4 : 7;
+  // Use the canonical inning calculation
+  const currentInning = getCurrentInning();
   
   const completedTasks = tasks.filter(task => task.completed).length;
   const totalTasks = tasks.length;
   const isBehindOnTasks = totalTasks > 0 && completedTasks / totalTasks < 0.3;
   
-  const completedOffense = tasks.filter(task => task.type === 'offense' && task.completed).length;
-  const offenseTasks = tasks.filter(task => task.type === 'offense').length;
-  
-  const completedDefense = tasks.filter(task => task.type === 'defense' && task.completed).length;
-  const defenseTasks = tasks.filter(task => task.type === 'defense').length;
+  const completedOffense = tasks.filter(task => task.category === 'offense' && task.completed).length;
+  const offenseTasks = tasks.filter(task => task.category === 'offense').length;
+
+  const completedDefense = tasks.filter(task => task.category === 'defense' && task.completed).length;
+  const defenseTasks = tasks.filter(task => task.category === 'defense').length;
   
   const energyLevel = 
     completedTasks >= 5 ? 'high' :
