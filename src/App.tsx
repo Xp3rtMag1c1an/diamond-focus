@@ -16,7 +16,7 @@ const App = () => (
       <TaskProvider>
         <Toaster />
         <Sonner position="top-right" />
-        <BrowserRouter>
+        <BrowserRouter basename="/diamond-focus">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="*" element={<NotFound />} />
